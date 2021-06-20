@@ -11,6 +11,13 @@
 
 ## test 测试插件
 
+## vue-cli 构建工具
+`npm install --global vue-cli
+ vue init webpack
+`
+
+
+
 ## vuex 状态管理插件
 
 ## other 其他零碎的知识
