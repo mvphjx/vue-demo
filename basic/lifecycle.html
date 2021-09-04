@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>生命周期应用</title>
+</head>
+<body>
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.15.6/lib/index.js"></script>
+<div id="app">
+    需求描述
+    <br/>
+    1 接收检索项数组 ["ID"]
+    <br/>
+    2 转换为检索表单 ["ID"]->[{"colName":"ID","values":[],"oper":"IN"}] （PS：这一步通过computed实现）
+    <br/>
+    3 返回检索条件 [{"colName":"ID","values":["3","4"],"oper":"IN"}]
+    <br/><br/>
+    存在问题：
+    <br/>
+    1 el-input绑定computed时，控件无法输入。
+    <br/>
+    2 原生input绑定computed时，只能更新JS对象，无法再次渲染页面。
+    <br/>
+    <br/>
+    这是一个检索表单
+    <input type="button" @click="setObj" value="加载检索项"/>
+    <input type="button" @click="getObj" value="获取检索参数"/>
+    <div>表单数据响应式预览： {{searchItems}}</div>
+    <div v-if="searchItems&&searchItems[0]">
+        检索项ID IN
+        <el-input v-model="searchItems[0].values[0]" placeholder="无法输入"></el-input>
+        <el-input v-model="searchItems[0].values[1]" @input="onInput()"
+                  placeholder="@input+$forceUpdate实现双向绑定"></el-input>
+        <input v-model="searchItems[0].values[2]" placeholder="原生input"></input>
+    </div>
+
+    <br/><br/>
+    解决方案：
+    <br/>
+    1 分析业务逻辑，寻找合适的钩子函数，将检索项转换为data，实现响应式，当前组件适合用 watch
+    <br/>
+    2 通过$forceUpdate实现响应式
+    <br/>
+    3 使用有缺陷的响应式，但是能保证JS对象是最新的编辑值
+    <br/>
+</div>
+</body>
+<script>
+    var Main = {
+        props: ["searchColumns"],
+        methods: {
+            setObj() {
+                this.searchColumns = [{name: "ID"}];
+            },
+            getObj() {
+                this.$message(JSON.stringify(this.searchItems));
+                console.log(this.searchItems);
+            },
+            onInput() {
+                this.$forceUpdate();
+            }
+        },
+        computed: {
+            /**
+             * 转为页面需要的格式
+             * @returns {*[]}
+             */
+            searchItems: {
+                set: function (searchItems) {
+                    this.searchItems = searchItems;
+                },
+                get: function () {
+                    let _searchItems = [];
+                    if (this.searchColumns && this.searchColumns[0]) {
+                        let _searchItem = {
+                            name: this.searchColumns[0].name,
+                            oper: "IN",
+                            values: ["", "", ""]
+                        };
+                        _searchItems.push(_searchItem);
+                    }
+                    return _searchItems;
+                }
+            }
+        },
+        watch: {
+            searchItems: function (newObj, oldObj) {
+                console.log("watch", this.searchItems);
+            }
+        },
+        beforeCreate() {
+            console.log("beforeCreate", this.searchItems);
+        },
+        created() {
+            console.log("created", this.searchItems);
+        },
+        beforeMount() {
+            console.log("beforeMount", this.searchItems);
+        },
+        mounted() {
+            console.log("mounted", this.searchItems);
+            this.$nextTick(function () {
+                console.log("$nextTick", this.searchItems);
+            });
+        },
+        beforeUpdate() {
+            console.log("beforeUpdate", this.searchItems);
+        },
+        updated() {
+            console.log("updated", this.searchItems);
+        },
+        activated() {
+            console.log("activated", this.searchItems);
+        },
+        deactivated() {
+            console.log("deactivated", this.searchItems);
+        },
+        beforeDestroy() {
+            console.log("beforeDestroy", this.searchItems);
+        },
+        destroyed() {
+            console.log("destroyed", this.searchItems);
+        },
+        errorCaptured() {
+            console.log("errorCaptured", this.searchItems);
+        }
+    };
+    var Ctor = Vue.extend(Main);
+    new Ctor().$mount("#app");
+
+</script>
+</html>
