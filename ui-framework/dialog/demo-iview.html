@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Modal</title>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="//unpkg.com/iview/dist/styles/iview.css">
+    <!-- 引入组件库 -->
+    <script src="//unpkg.com/iview/dist/iview.min.js"></script>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div id="app">
+    <i-button @click="show">Click me!</i-button>
+    <Modal v-model="visible">
+        <div class="menu-dialog">
+            欢迎使用 iView
+        </div>
+        <div slot="footer">
+
+        </div>
+    </Modal>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            visible: false
+        },
+        methods: {
+            show: function () {
+                this.visible = true;
+            }
+        }
+    })
+</script>
+<style>
+    #app {
+        display: flex;
+
+    }
+
+    .menu-dialog {
+        width: 1411px;
+        height: 339px;
+        border: 1px solid #ddd;
+    }
+</style>
+</body>
+</html>

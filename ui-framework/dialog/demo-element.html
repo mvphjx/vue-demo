@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>el-dialog</title>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div id="app" style="margin: 0 auto">
+    <el-button type="text" @click="dialogTableVisible = true">Dialog</el-button>
+
+    <el-dialog :visible.sync="dialogTableVisible">
+        <div class="menu-dialog">
+
+        </div>
+
+    </el-dialog>
+
+
+    <div style="margin: 0 auto">
+        <el-popover
+                placement="right"
+                trigger="click"
+                placement="bottom"
+                visible-arrow="false"
+        >
+            <div class="menu-dialog">
+
+            </div>
+            <el-button slot="reference">Popover 激活</el-button>
+        </el-popover>
+    </div>
+
+
+</div>
+<style>
+    #app {
+        display: flex;
+
+    }
+
+    .menu-dialog {
+        width: 1411px;
+        height: 339px;
+        border: 1px solid #ddd;
+    }
+</style>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                dialogTableVisible: false
+            }
+        }
+    })
+</script>
+</body>
+</html>
