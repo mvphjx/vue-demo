@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>具名插槽</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div id="app">
+    <Home>
+        <template v-slot:header>
+            <h1>Here might be a page title</h1>
+        </template>
+<!--        缺省插槽-->
+        <template>
+            <p>A paragraph for the main content.</p>
+            <p>And another one.</p>
+        </template>
+        <template v-slot:footer>
+            <p>Here's some contact info</p>
+        </template>
+    </Home>
+</div>
+<template id="home-template">
+    <div>
+        <el-container>
+            <el-header>
+                <slot name="header"></slot>
+            </el-header>
+            <el-main>
+                <slot></slot>
+            </el-main>
+            <el-footer>
+                <slot name="footer"></slot>
+            </el-footer>
+        </el-container>
+    </div>
+</template>
+<script>
+    /**
+     * 1、通过template标签声明模板
+     * 2、使用时，通过具名插槽 填充内容
+     */
+    Vue.component('Home', {
+        template: '#home-template'
+    })
+    new Vue({
+        el: "#app",
+        data: {
+            posts: [],
+            postFontSize: 1
+        },
+        created: function () {
+
+        },
+        methods: {}
+    });
+</script>
+</body>
+</html>
