@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>快速排序</title>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div id="app">
+
+    <transition-group name="list-complete" tag="div" class="nums">
+        <div v-for="num in nums" v-bind:key="num" :class="['num','list-complete-item']">
+            {{num}}
+        </div>
+    </transition-group>
+    需要排序的数据：{{nums}}
+    <input type="button" @click="sort" value="冒泡排序"/>
+</div>
+</body>
+<style>
+    .nums {
+        display: flex;
+    }
+
+    .num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100px;
+        height: 100px;
+        border: #42b983 dashed;
+    }
+
+    .list-complete-item {
+        transition: all 1s;
+        margin-right: 10px;
+    }
+
+    .list-complete-enter, .list-complete-leave-to
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .list-complete-leave-active {
+        position: absolute;
+    }
+</style>
+<script>
+    var data = {
+        nums: [5, 4, 3, 2, 1]
+    };
+    new Vue({
+        el: "#app",
+        data: data,
+        methods: {
+            async sort() {
+                for (let j = 0; j < this.nums.length; j++) {
+                    for (let i = 0; i < this.nums.length - j; i++) {
+                        console.log(this.nums[i] > this.nums[i + 1], this.nums[i], this.nums[i + 1])
+                        if (this.nums[i] > this.nums[i + 1]) {
+                            let tempNum = this.nums[i];
+                            // this.nums[i] = this.nums[i + 1];
+                            // this.nums[i + 1] = tempNum;
+                            this.nums.splice(i,1,this.nums[i + 1]);
+                            this.nums.splice(i+1,1,tempNum);
+                        }
+                        //this.$forceUpdate();
+                        await this.sleep(1000)
+                    }
+
+                }
+                alert("排序完成")
+            },
+            sleep: (ms) => {
+                // Unit is ms
+                return new Promise(resolve => setTimeout(resolve, ms))
+            }
+        }
+    });
+
+    /**
+     * 冒泡排序
+     * @param nums
+     */
+    function sort2(nums) {
+        for (let j = 0; j < nums.length; j++) {
+            for (let i = 0; i < nums.length - j; i++) {
+                if (nums[i] > nums[i + 1]) {
+                    let tempNum = nums[i];
+                    nums[i] = nums[i + 1];
+                    nums[i + 1] = tempNum;
+                }
+            }
+        }
+        return nums;
+    }
+
+    /**
+     * 快速排序
+     * @param nums
+     * @returns {*}
+     */
+    function sort(nums) {
+        if (nums.length < 2) {
+            return nums;
+        }
+        let baseNum = nums[0];
+        let preNums = [];
+        let nextNums = [];
+        for (let i = 1; i < nums.length; i++) {
+            if (nums[i] < baseNum) {
+                preNums.push(nums[i])
+            } else {
+                nextNums.push(nums[i])
+            }
+        }
+        return [...sort(preNums), baseNum, ...sort(nextNums)]
+    }
+
+
+</script>
+
+</html>
