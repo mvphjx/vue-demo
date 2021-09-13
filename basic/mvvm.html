@@ -5,6 +5,7 @@
     <title>响应式测试</title>
     <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="/image/logo/中国结.ico"/>
 </head>
 <body>
 <div id="app">
@@ -23,8 +24,7 @@
                 //可以响应变化，传递的是一个对象
                 state1:store.state,
                 //无法响应变化,传递的是一个副本，想要响应式应该使用this.count1++;
-                count1:store.state.count,
-                content: ""
+                count1:store.state.count
             }
         },
         template: '<div><h2>state1:{{state1.count}}/count1:{{count1}}</h2>' +
@@ -32,7 +32,7 @@
             '<input type="button" v-on:click="increment"  value="increment"></input>' +
             '</div>',
         computed: {
-            count2() {//可以响应变化
+            count2:function() {//可以响应变化
                 return store.state.count;
             },
             state2() {//可以响应变化
