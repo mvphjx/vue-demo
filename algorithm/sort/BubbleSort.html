@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>排序算法图形化-冒泡排序</title>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div id="app">
+    需要排序的数据 <input type="button" @click="reset" value="重置"/>
+    <div class="nums">
+        <div v-for="num in sourceNums" v-bind:key="num" :class="['num','nums-item']">
+            {{num}}
+        </div>
+    </div>
+    <br/>
+    <input type="button" @click="bubbleSort" value="冒泡排序"/>
+    <transition-group name="nums" tag="div" class="nums">
+        <div v-for="num in nums" v-bind:key="num" :class="['num','nums-item']">
+            {{num}}
+        </div>
+    </transition-group>
+    <div class="text" v-if="finish">排序完成!</div>
+</div>
+</body>
+<style>
+    .nums {
+        display: flex;
+        transition: all 500ms;
+        margin-right: 10px;
+    }
+
+    .num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border: #42b983 solid;
+    }
+
+    .nums-item {
+        transition: all 500ms;
+        margin-right: 10px;
+    }
+
+    .nums-enter, .nums-leave-to {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .nums-leave-active {
+        position: absolute;
+    }
+</style>
+<script>
+
+
+    new Vue({
+        el: "#app",
+        data: {
+            sourceNums: [],
+            //需要排序的数组
+            nums: [],
+            finish: false
+        },
+        methods: {
+            reset() {
+                this.nums = [];
+                for (let i = 0; i < 7; i++) {
+                    var num = Math.floor(Math.random() * (200 - 1)) + 1;
+                    if (!this.nums.includes(num)) {
+                        this.nums.push(num);
+                    }
+                }
+                Object.assign(this.sourceNums, this.nums)
+                this.finish = false;
+            },
+            async bubbleSort() {
+                await bubbleSort(this.nums);
+                this.finish = true;
+            }
+        },
+        mounted() {
+            this.reset();
+        }
+
+    });
+
+    /**
+     * 冒泡排序
+     * @param nums
+     */
+    async function bubbleSort(nums) {
+        for (let j = 0; j < nums.length; j++) {
+            for (let i = 0; i < nums.length - j; i++) {
+                console.log(nums[i] > nums[i + 1], nums[i], nums[i + 1])
+                if (nums[i] > nums[i + 1]) {
+                    let tempNum = nums[i];
+                    nums.splice(i, 1, nums[i + 1]);
+                    nums.splice(i + 1, 1, tempNum);
+                    await sleep(500);
+                }
+            }
+        }
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
+
+
+</script>
+
+</html>

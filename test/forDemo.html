@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    // 1.普通for循环
+    let totalPrice1 = 0;
+    for (let i = 0; i < books.length; i++) {
+        totalPrice1 += books[i].count * books[i].price
+    }
+    console.log(totalPrice1);
+
+    // 2. for(let i in this.books),i是下标
+    let totalPrice2 = 0;
+    for (let i in books) {
+        let book = books[i];
+        totalPrice2 += book.count * book.price
+    }
+    console.log(totalPrice2);
+
+    // 3. for(let item of  books)
+    let totalPrice3 = 0;
+    for (let item of books) {
+        totalPrice3 += item.count * item.price
+    }
+    console.log(totalPrice3);
+
+</script>
+</body>
+</html>

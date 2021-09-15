@@ -15,7 +15,6 @@
         </div>
     </div>
     <br/>
-    <input type="button" @click="sort" value="冒泡排序"/>
     <input type="button" @click="fastSort" value="快速排序"/>
     <transition-group name="nums" tag="div" >
         <div v-for="(item,index) in fastSortLogs" v-bind:key="index" class="nums">
@@ -62,9 +61,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 100px;
-        height: 100px;
-        border: #42b983 dashed;
+        width: 50px;
+        height: 50px;
+        border: #42b983 solid;
     }
 
     .base-num {
@@ -116,10 +115,6 @@
                 this.logs = [];
                 this.finish = false;
             },
-            async sort() {
-                await sort(this.nums);
-                this.finish = true;
-            },
             async fastSort() {
                 this.nums = await fastSort(this.nums, this.logs);
                 this.finish = true;
@@ -170,25 +165,6 @@
         },
 
     });
-
-    /**
-     * 冒泡排序
-     * @param nums
-     */
-    async function sort(nums) {
-        for (let j = 0; j < nums.length; j++) {
-            for (let i = 0; i < nums.length - j; i++) {
-                console.log(nums[i] > nums[i + 1], nums[i], nums[i + 1])
-                if (nums[i] > nums[i + 1]) {
-                    let tempNum = nums[i];
-                    nums.splice(i, 1, nums[i + 1]);
-                    nums.splice(i + 1, 1, tempNum);
-                    await sleep(500);
-                }
-            }
-        }
-    }
-
     /**
      * 快速排序
      * @param nums  要排序的数据
