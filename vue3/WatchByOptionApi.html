@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Watch</title>
+    <script src="https://unpkg.com/vue@3.2.11/dist/vue.global.js"></script>
+    <meta charset="UTF-8">
+    <style>
+        #app {
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <input type="button" @click="push" value="push"/>
+    <br/>
+    {{ list }}
+    <br/>
+    {{ question }}
+</div>
+</body>
+<script>
+    Vue.createApp({
+        data() {
+            return {
+                question: '',
+                list: []
+            };
+        },
+        methods: {
+            push() {
+                this.list.push("1");
+                this.question = this.question + 1;
+            }
+        },
+        watch: {
+            list: {
+                handler() {
+                    alert(1);
+                },
+                deep: true
+            },
+            question() {
+                alert(2);
+            }
+        }
+    }).mount("#app");
+
+</script>
+</html>

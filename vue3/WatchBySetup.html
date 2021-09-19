@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Watch</title>
+    <script src="https://unpkg.com/vue@3.2.11/dist/vue.global.js"></script>
+    <meta charset="UTF-8">
+    <style>
+        #app {
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <input type="button" @click="push" value="push"/>
+    <br/>
+    {{ list }}
+    <br/>
+    {{ question }}
+</div>
+</body>
+<script>
+    Vue.createApp({
+        methods: {
+            push() {
+                this.list.push("1");
+                this.question = this.question + 1;
+            }
+        }, setup() { //数据入口
+            console.log("setup");
+            let question = '';
+            let list = Vue.ref([]);
+            Vue.watch(list, () => {
+                alert(1);
+
+            });
+            Vue.watch(question, () => {
+                alert(2);
+            });
+            return {question, list}
+        }
+    }).mount("#app");
+
+</script>
+</html>
