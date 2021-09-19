@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    /**let非常适合用于 for循环内部的块级作用域。
+     * JS中的for循环体比较特殊，每次执行都是一个全新的独立的块作用域，
+     * 用let声明的变量传入到 for循环体的作用域后，不会发生改变，不受外界的影响。
+     * let
+     * 输出123
+     */
+    for(let i of [1,2,3]){
+        setTimeout(()=>{
+            console.log(i);
+        })
+    }
+    /**
+     * 输出 333
+     */
+    for(var i of [1,2,3]){
+        setTimeout(()=>{
+            console.log(i);
+        })
+    }
+
+</script>
+</body>
+</html>

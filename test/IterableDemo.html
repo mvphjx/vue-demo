@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    //数组结构
+    const names = ["alice", "bob", "claire"]
+    //图结构（对象+数组）
+    const graph = {};
+    graph["you"] = names;
+    graph["bob"] = ["anuj", "peggy"];
+    graph["alice"] = ["peggy"];
+    graph["claire"] = ["thom", "jonny"];
+    graph["anuj"] = [];
+    graph["peggy"] = [];
+    graph["thom"] = [];
+    graph["jonny"] = [];
+
+
+    console.log("--------数组遍历--------");
+    console.warn("----for;;循环");
+    for (let i = 0; i < names.length; i++) {
+        console.log(names[i]);
+    }
+    console.warn("----for in 循环");
+    for (let i in names) {
+        console.log(names[i]);
+    }
+    console.log("----for of 循环");
+    for (let name of names) {
+        console.log(name);
+    }
+
+    console.log("--------对象遍历--------");
+    console.warn("----for in 循环");
+    for (let key in graph) {
+        console.log(key, graph[key]);
+    }
+    console.warn("----for of 循环 不支持！！");
+    try {
+        for (let item of graph) {
+            console.log(item);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+
+
+    console.log("--------Map对象遍历--------");
+    var map = new Map();
+    map.set(1, "black");
+    map.set(2, "red");
+    console.warn("----for in 循环");
+    for (let key in map) {
+        console.log(map[key]);
+    }
+    console.warn("----forEach 循环");
+    map.forEach(function (value, key, map) {
+        console.log(value, key, map)
+    })
+    console.warn("----for of 循环");
+    for (let [key, value] of map) {
+        console.log(key, value);
+    }
+
+
+    console.log("--------数组&对象通用遍历方法遍历--------");
+    console.warn("----for in 循环");
+    for (let key in graph) {
+        console.log(key, graph[key]);
+    }
+    for (let key in names) {
+        console.log(key, names[key]);
+    }
+    console.warn("----ObjectAPI 循环");
+    for (let key of Object.keys(graph)) {
+        console.log(key, graph[key]);
+    }
+    for (let key of Object.keys(names)) {
+        console.log(key, names[key]);
+    }
+</script>
+</body>
+</html>
