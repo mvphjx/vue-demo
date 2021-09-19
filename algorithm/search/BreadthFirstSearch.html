@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>广度优先</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.9"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-rc.4"></script>
+    <meta charset="UTF-8">
+    <style>
+        #app {
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <input type="text" v-model="searchName"/>
+    <input type="button" @click="breadthFirstSearch" value="广度优先"/>
+    <input type="button" @click="reset" value="重置"/>
+    <v-chart autoresize :option="option" ref="vChart"/>
+    <div class="text" v-if="finish">查找完成!</div>
+</div>
+</body>
+<script>
+
+    //图结构
+    const graph = {};
+    graph["root"] = ["alice", "bob", "claire"];
+    graph["bob"] = ["anuj", "peggy"];
+    graph["alice"] = ["peggy"];
+    graph["claire"] = ["thom", "jonny"];
+    graph["anuj"] = [];
+    graph["peggy"] = [];
+    graph["thom"] = [];
+    graph["jonny"] = [];
+    var option = {
+        tooltip: {},
+        legend: [{}],
+        series: [{
+            type: "graph",
+            layout: "force",
+            symbol: "circle",//图形 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow'
+            symbolSize: 30,//标记的大小，可以设置成诸如 10 这样单一的数字，也可以用数组分开表示宽和高，例如 [20, 10] 表示标记宽为20，高为10。
+            data:[],
+            links:[],
+            force: {//力引导布局相关的配置项
+                layoutAnimation: true,
+                repulsion: 500,
+            },
+        }]
+    }
+
+    Vue.createApp({
+        data() {
+            return {
+                //需要查找的图
+                data: graph,
+                //图形化显示图节点的查找状态
+                dataFlag: {},
+                //查找节点
+                searchName: null,
+                finish: false,
+                //echarts配置
+                option
+            };
+        },
+        methods: {
+            async breadthFirstSearch() {
+                await breadthFirstSearch(this.data,this.searchName,this.dataFlag);
+                this.finish = true;
+            },
+            reset() {
+                this.finish = false;
+                initOption(this.data)
+                this.$refs.vChart.setOption(this.option);
+                let nodes  = this.option.series[0].data;
+                this.searchName = nodes[Math.floor(Math.random() * (nodes.length - 1))].name
+            }
+        },
+        mounted() {
+            this.reset();
+        },
+        watch: {
+            dataFlag: {
+                handler() {
+                    console.log("watch",this.dataFlag);
+                    let data = this.option.series[0].data;
+
+
+                },
+                deep: true
+            }
+        },
+        setup() { //数据入口
+            console.log("setup");
+        }
+
+    }).component("v-chart", VueECharts).mount("#app");
+
+    /**
+     * 初始化图表配置
+     * @param graph
+     */
+    function initOption(graph) {
+        if (graph == null || isPrimitive(graph)) {
+            return;
+        }
+        let data = [];
+        let links = [];
+        for (let key in graph) {
+            data.push({
+                id: key,
+                name: key,
+                label: {show: true}
+            });
+        }
+        for (let key in graph) {
+            for (let name of graph[key]) {
+                links.push({
+                    source: key,
+                    target: name
+                })
+            }
+        }
+        option.series[0].data = data;
+        option.series[0].links = links;
+    }
+
+    /**
+     * 检查是否基本类型，不进行遍历
+     */
+    function isPrimitive(value) {
+        return (
+            typeof value === 'string' ||
+            typeof value === 'number' ||
+            typeof value === 'boolean'
+        )
+    }
+
+
+    /**
+     * 广度优先搜索
+     * @param graph
+     * @param searchName
+     * @param dataFlag
+     * @returns {boolean}
+     */
+    async function breadthFirstSearch(graph, searchName, dataFlag) {
+        let _graph = JSON.parse(JSON.stringify(graph));
+        let searchQueue = _graph["root"];
+        let searched = [];
+        while (searchQueue.length > 0) {
+            let person = searchQueue.pop();
+            // Only search this person if you haven't already searched them
+            if (!searched.includes(person)) {
+                if (person === searchName) {
+                    console.log(" match ", person);
+                    dataFlag[person] = "match";
+                    return true;
+                } else {
+                    searchQueue = searchQueue.concat(_graph[person]);
+                    // Marks this person as searched
+                    searched.push(person);
+                    console.log("not match", person)
+                    dataFlag[person] = "no_match";
+                }
+                await sleep(500);
+            }
+        }
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
+
+</script>
+</html>
