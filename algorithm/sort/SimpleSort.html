@@ -2,7 +2,7 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>排序算法图形化-冒泡排序</title>
+    <title>排序算法图形化</title>
     <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
     <meta charset="UTF-8">
 </head>
@@ -16,6 +16,7 @@
     </div>
     <br/>
     <input type="button" @click="bubbleSort" value="冒泡排序"/>
+    <input type="button" @click="insertSort" value="插入排序"/>
     <transition-group name="nums" tag="div" class="nums">
         <div v-for="num in nums" v-bind:key="num" :class="['num','nums-item']">
             {{num}}
@@ -60,6 +61,7 @@
     new Vue({
         el: "#app",
         data: {
+            //源数组
             sourceNums: [],
             //需要排序的数组
             nums: [],
@@ -79,6 +81,10 @@
             },
             async bubbleSort() {
                 await bubbleSort(this.nums);
+                this.finish = true;
+            },
+            async insertSort() {
+                await insertSort(this.nums);
                 this.finish = true;
             }
         },
@@ -105,6 +111,35 @@
             }
         }
     }
+
+    //插入排序
+    async function insertSort(nums) {
+        //存放要排序的数据
+        var _num = [];
+        Object.assign(_num, nums);
+        //清空VUE绑定的数组，开始排序
+        nums.splice(0, nums.length);
+        nums.push(_num[0]);
+        await sleep(500);
+        for (var i = 1; i < _num.length; i++) {
+            var cur = _num[i];
+            //倒着比较
+            for (var j = nums.length - 1; j >= 0;) {
+                if (cur < nums[j]) {//当前比左手的牌小 继续比
+                    j--;
+                    if (j === -1) {//比左手所有的都小 放在开头就可以了
+                        nums.unshift(cur);
+                        await sleep(500);
+                    }
+                } else {//当前新抓的比左手中的【j】大 ，放后面
+                    nums.splice(j + 1, 0, cur); //放到 j+1前面
+                    await sleep(500);
+                    j = -1;
+                }
+            }
+        }
+    }
+
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
