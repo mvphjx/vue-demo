@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>v-model测试</title>
+    <title>v-model实现原理</title>
     <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
 </head>
 <body>
 <div id="app">
-    <input v-model="username"  prefix="h_me_f" placeholder="用户名"/>
+    parent:{{num}}
+    <br></br>
+    v-model相当于 v-bind:value v-on:input的缩写：
+    1把值传给 value
+    2监听input 事件
+    <br></br>
+    <count-demo v-model="num"></count-demo>
 </div>
 </body>
 <style>
@@ -18,11 +24,35 @@
 
 </style>
 <script>
+    /**
+     * v-model是为了 与浏览器原生控件交互，实现双向数据流
+     * 1 浏览器控件统一使用 value 接收参数：v-bind:value
+     * 2 浏览器控件统一使用 input 更新数据：v-on:input
+     *
+     * 如果自定义组件想要使用，需要按照这个规范，接收、更新
+     *
+     */
+    Vue.component("count-demo", {
+        props:['value'],
+        template: `
+          <div>
+            {{value}}
+            <input type="button" @click="add" value="add"></input>
+          </div>
+        `,
+        methods:{
+            add(){
+                let num = this.value +1
+                this.$emit('input', num);
+            }
+        }
+    });
+
     new Vue({
         el: '#app',
         data() {
             return {
-                username: "123"
+                num: 1
             }
         }
     })
