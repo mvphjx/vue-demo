@@ -43,7 +43,19 @@
                         :picker-options="pickerOptions">
                 </el-date-picker>
             </el-col>
+
+
         </el-form-item>
+        <el-form-item label="开关">
+            <el-col :span="11">
+                <el-switch
+                        v-model="form.switch"
+                        active-color="#13ce66"
+                        inactive-color="#ff4949">
+                </el-switch>
+            </el-col>
+        </el-form-item>
+
         <el-form-item>
             <el-button type="primary" @click="onSubmit">立即创建</el-button>
             <el-button>取消</el-button>
@@ -67,7 +79,8 @@
                     text: '',
                     code: '',
                     date1: '',
-                    date2: ''
+                    date2: '',
+                    switch:true
                 }, pickerOptions: {
                     shortcuts: [{
                         text: '最近一周',

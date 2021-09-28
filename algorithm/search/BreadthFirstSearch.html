@@ -8,6 +8,9 @@
     <meta charset="UTF-8">
     <style>
         #app {
+            height: 500px;
+        }
+        #vchart{
             height: 400px;
         }
     </style>
@@ -16,8 +19,18 @@
 <div id="app">
     <input type="text" v-model="searchName"/>
     <input type="button" @click="breadthFirstSearch" value="广度优先"/>
+    <input type="button" @click="depthFirstSearch" value="深度优先"/>
     <input type="button" @click="reset" value="重置"/>
-    <v-chart autoresize :option="option" ref="vChart"/>
+    <div id="vchart">
+        <v-chart :option="option" ref="vChart"/>
+    </div>
+
+    <div>
+        图例说明:
+        <span>待查找  </span>
+        <span style="color: red;">匹配  </span>
+        <span>不匹配  </span>
+    </div>
     <div class="text" v-if="finish">查找完成!</div>
 </div>
 </body>
@@ -41,8 +54,8 @@
             layout: "force",
             symbol: "circle",//图形 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow'
             symbolSize: 30,//标记的大小，可以设置成诸如 10 这样单一的数字，也可以用数组分开表示宽和高，例如 [20, 10] 表示标记宽为20，高为10。
-            data:[],
-            links:[],
+            data: [],
+            links: [],
             force: {//力引导布局相关的配置项
                 layoutAnimation: true,
                 repulsion: 500,
@@ -54,39 +67,60 @@
         data() {
             return {
                 //需要查找的图
-                data: graph,
+                graph: graph,
                 //图形化显示图节点的查找状态
-                dataFlag: {},
+                dataLog: [],
                 //查找节点
                 searchName: null,
                 finish: false,
                 //echarts配置
-                option
+                option: {}
             };
         },
         methods: {
             async breadthFirstSearch() {
-                await breadthFirstSearch(this.data,this.searchName,this.dataFlag);
+                await breadthFirstSearch(this.graph, this.searchName, this.dataLog);
+                this.finish = true;
+            },
+            async depthFirstSearch() {
+                await depthFirstSearch(this.graph, this.searchName, this.dataLog);
                 this.finish = true;
             },
             reset() {
                 this.finish = false;
-                initOption(this.data)
+                this.option = initOption(this.graph)
                 this.$refs.vChart.setOption(this.option);
-                let nodes  = this.option.series[0].data;
-                this.searchName = nodes[Math.floor(Math.random() * (nodes.length - 1))].name
+                let nodes = this.option.series[0].data;
+                this.searchName = nodes[Math.floor(Math.random() * (nodes.length - 2))+1].name;
+                this.dataLog = [];
             }
         },
         mounted() {
             this.reset();
         },
         watch: {
-            dataFlag: {
+            dataLog: {
                 handler() {
-                    console.log("watch",this.dataFlag);
+                    if (this.dataLog.length === 0) {
+                        return;
+                    }
+                    console.log("watch", arguments);
                     let data = this.option.series[0].data;
-
-
+                    let changeLog = this.dataLog[this.dataLog.length - 1]
+                    for (let key in data) {
+                        let id = data[key].id;
+                        if (changeLog.id === id) {
+                            let color = "green"
+                            if (changeLog.value === 'match') {
+                                color = "red";
+                            }
+                            data[key]["itemStyle"] = {
+                                color
+                            }
+                        }
+                    }
+                    //重置前，echarts会自动渲染，点击重置后，需要加上这一句？？？
+                    this.$refs.vChart.setOption(this.option);
                 },
                 deep: true
             }
@@ -100,6 +134,12 @@
     /**
      * 初始化图表配置
      * @param graph
+     * @return {
+     *     series: [{
+     *      data:[{id,name,lable}],
+     *      links:[{source,target}]
+     *     }]
+     * }
      */
     function initOption(graph) {
         if (graph == null || isPrimitive(graph)) {
@@ -124,6 +164,7 @@
         }
         option.series[0].data = data;
         option.series[0].links = links;
+        return option;
     }
 
     /**
@@ -139,13 +180,13 @@
 
 
     /**
-     * 广度优先搜索
+     * 深度优先搜索（与广度优先相比，只能改变了 查询队列的 添加顺序，达到了先进后出的效果）
      * @param graph
      * @param searchName
-     * @param dataFlag
+     * @param dataLog
      * @returns {boolean}
      */
-    async function breadthFirstSearch(graph, searchName, dataFlag) {
+    async function depthFirstSearch(graph, searchName, dataLog) {
         let _graph = JSON.parse(JSON.stringify(graph));
         let searchQueue = _graph["root"];
         let searched = [];
@@ -155,19 +196,52 @@
             if (!searched.includes(person)) {
                 if (person === searchName) {
                     console.log(" match ", person);
-                    dataFlag[person] = "match";
+                    dataLog.push({"id": person, "value": "match"})
                     return true;
                 } else {
-                    searchQueue = searchQueue.concat(_graph[person]);
+                    searchQueue = [...searchQueue, ..._graph[person]];
                     // Marks this person as searched
                     searched.push(person);
                     console.log("not match", person)
-                    dataFlag[person] = "no_match";
+                    dataLog.push({"id": person, "value": "not_match"})
                 }
                 await sleep(500);
             }
         }
     }
+
+
+    /**
+     * 广度优先搜索
+     * @param graph
+     * @param searchName
+     * @param dataLog
+     * @returns {boolean}
+     */
+    async function breadthFirstSearch(graph, searchName, dataLog) {
+        let _graph = JSON.parse(JSON.stringify(graph));
+        let searchQueue = _graph["root"];
+        let searched = [];
+        while (searchQueue.length > 0) {
+            let person = searchQueue.pop();
+            // Only search this person if you haven't already searched them
+            if (!searched.includes(person)) {
+                if (person === searchName) {
+                    console.log(" match ", person);
+                    dataLog.push({"id": person, "value": "match"})
+                    return true;
+                } else {
+                    searchQueue = [..._graph[person], ...searchQueue];
+                    // Marks this person as searched
+                    searched.push(person);
+                    console.log("not match", person)
+                    dataLog.push({"id": person, "value": "not_match"})
+                }
+                await sleep(500);
+            }
+        }
+    }
+
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
