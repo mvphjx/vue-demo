@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>迪克斯特拉算法-最短路径</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.9"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0-rc.4"></script>
+    <meta charset="UTF-8">
+    <style>
+        #app {
+            height: 500px;
+        }
+
+        #vchart {
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div id="vchart">
+        <v-chart :option="option" ref="vChart"/>
+    </div>
+</div>
+
+</body>
+<script>
+    //图结构 有权图
+    // the graph
+    const graph = {};
+    graph["start"] = {};
+    graph["start"]["a"] = 60;
+    graph["start"]["b"] = 20;
+
+    graph["a"] = {};
+    graph["a"]["fin"] = 10;
+
+    graph["b"] = {};
+    graph["b"]["a"] = 30;
+    graph["b"]["fin"] = 50;
+
+    graph["fin"] = {};
+    /**
+     * 记录到达各个节点的最短路径
+     * @type {{}}
+     */
+    let nodeCosts = {};
+    updateLowestCostNode('start');
+
+    /**
+     * 遍历所有节点，记录并不算更新最短路径
+     * @param thisNode
+     */
+    function updateLowestCostNode(thisNode) {
+        let neighbors = graph[thisNode];
+        let nextNode = null;
+        for (let key in neighbors) {
+            if (!nodeCosts[key]) {
+                let preCosts = 0;
+                if (nodeCosts[thisNode]) {
+                    preCosts = nodeCosts[thisNode].costs;
+                }
+                nodeCosts[key] = {
+                    costs: preCosts + neighbors[key],
+                    pathNode: thisNode
+                }
+            } else {
+                let newCosts = nodeCosts[thisNode].costs + neighbors[key]
+                if (nodeCosts[key].costs > newCosts) {
+                    nodeCosts[key] = {
+                        costs: newCosts,
+                        pathNode: thisNode
+                    }
+                }
+
+            }
+            if (!nextNode) {
+                nextNode = key;
+            } else if (neighbors[key] < neighbors[nextNode]) {
+                nextNode = key;
+            }
+        }
+        if (nextNode) {
+            updateLowestCostNode(nextNode);
+        }
+    }
+
+    console.log("最短路径集合", nodeCosts);
+
+    /**
+     * 根据路径记录表，获取最短路径
+     * @param thisNode
+     * @returns {*[]}
+     */
+    function getLowestCostNode(thisNode) {
+        let nodes = [];
+        nodes.unshift(thisNode);
+        let nodeCost = nodeCosts[thisNode];
+        while (true) {
+            nodes.unshift(nodeCost.pathNode);
+            if (nodeCost.pathNode === 'start') {
+                break;
+            }
+            nodeCost = nodeCosts[nodeCost.pathNode];
+        }
+        return nodes;
+    }
+
+    console.log("到fin最短路径", getLowestCostNode('fin'));
+    var option = {
+        tooltip: {},
+        legend: [{}],
+        series: [{
+            type: "graph",
+            layout: "force",
+            symbol: "circle",//图形 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow'
+            symbolSize: 30,//标记的大小，可以设置成诸如 10 这样单一的数字，也可以用数组分开表示宽和高，例如 [20, 10] 表示标记宽为20，高为10。
+            data: [],
+            links: [],
+            force: {//力引导布局相关的配置项
+                layoutAnimation: true,
+                repulsion: 1000,
+            },
+            lineStyle: {}
+        }]
+    }
+
+    function getColor(value) {
+        let index = value / 10;
+        let color;
+        switch (index) {
+            case 0:
+                color = "#D3FF93";
+                break;
+            case 1:
+                color = "#D8D8EB";
+                break;
+            case 2:
+                color = "#B8B8DC";
+                break;
+            case 3:
+                color = "#9999cc";
+                break;
+            case 4:
+                color = "#7373B9";
+                break;
+            default:
+                color = "#484891";
+                break;
+        }
+        return color;
+    }
+
+    /**
+     * 检查是否基本类型，不进行遍历
+     */
+    function isPrimitive(value) {
+        return (
+            typeof value === 'string' ||
+            typeof value === 'number' ||
+            typeof value === 'boolean'
+        )
+    }
+
+    /**
+     * 初始化 图数据
+     */
+    function initOption(graph) {
+        if (graph == null || isPrimitive(graph)) {
+            return;
+        }
+        let data = [];
+        let links = [];
+        for (let key in graph) {
+            data.push({
+                id: key,
+                name: key,
+                label: {show: true}
+            });
+        }
+        for (let key in graph) {
+            for (let key2 in graph[key]) {
+                links.push({
+                    source: key,
+                    target: key2,
+                    value: graph[key][key2],
+
+                    label: {
+                        "show": true,
+                        "color": getColor(graph[key][key2]),
+                        "fontWeight": 'bolder',
+                        "formatter": function () {
+                            return arguments[0].value;
+                        }
+                    }
+                })
+            }
+        }
+        option.series[0].data = data;
+        option.series[0].links = links;
+        return option;
+    }
+
+    Vue.createApp({
+        data() {
+            return {
+                //需要查找的图
+                graph: graph,
+                //图形化显示图节点的查找状态
+                dataLog: [],
+                //查找节点
+                searchName: null,
+                finish: false,
+                //echarts配置
+                option: {}
+            };
+        },
+        methods: {
+            reset() {
+                this.finish = false;
+                this.option = initOption(this.graph)
+                this.$refs.vChart.setOption(this.option);
+                let nodes = this.option.series[0].data;
+                this.dataLog = [];
+            }
+        },
+        mounted() {
+            this.reset();
+        },
+        watch: {},
+        setup() { //数据入口
+            console.log("setup");
+        }
+    }).component("v-chart", VueECharts).mount("#app");
+</script>
+</html>
