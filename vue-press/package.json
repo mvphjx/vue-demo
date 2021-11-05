@@ -1,0 +1,20 @@
+{
+  "name": "vue-press",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs",
+    "cinstall": "cnpm install"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vuepress": "^1.8.2",
+    "element-ui": "^2.15.3",
+    "vue": "^2.6.10",
+    "vue-echarts": "6.0.0",
+    "vue-router": "^3.1.3"
+  }
+}
