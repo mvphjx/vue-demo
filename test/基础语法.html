@@ -12,17 +12,18 @@
      * let
      * 输出123
      */
-    for(let i of [1,2,3]){
+    var arrays = [1,2,3];
+    for(let i in arrays){
         setTimeout(()=>{
-            console.log(i);
+            console.log(arrays[i]);
         })
     }
     /**
      * 输出 333
      */
-    for(var i of [1,2,3]){
+    for(var i in arrays){
         setTimeout(()=>{
-            console.log(i);
+            console.log(arrays[i]);
         })
     }
 

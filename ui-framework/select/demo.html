@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>搜索框</title>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+<div id="app" style="margin: 0 auto">
+    <el-select v-model="value"
+               filterable
+               remote
+               reserve-keyword
+               :remote-method="remoteMethod"
+               :filter-method="filterMethod"
+               :loading="loading"
+               placeholder="请选择">
+        <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.text"
+                :value="item.value">
+            <span style="float: left">{{ item.text }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+        </el-option>
+    </el-select>
+</div>
+
+<script>
+    //
+    /**需求
+     * 用于检索的代码表组件
+     * 1支持检索 文本/代码/拼音
+     * 2支持根据输入，异步加载
+     * 3如果输入的值  文本/代码和代码表完全一致，自动加载 ；例如输入11000，有完全配置的记录时，焦点移开自动选中
+     * 4回填，一般是回填代码值，需要调用接口进行查询、翻译。如果没有对应代码表，显示代码
+     *
+     *
+     * API设计
+     * 显示配置
+     * placetype： 该代码框是放在页面上还是对话框里。参数 0 下拉选(缺省）,1 弹窗展示
+     * texttype： 0文本（缺省） 1 代码
+     * itemtype:下拉选中的 数据展示形式， 0文本（缺省） 1 代码 2 文本&代码
+     * 数据加载
+     * colName：列名，可选，用于加载数据 。 如果返回值>=60条，开启搜索功能
+     * codeData:界面自定义的代码表，可选，如果配置了colName会优先使用
+     * ---reId：关联的input控件id
+     * 方法
+     * change:修改时回调外面的方法
+     * 额外配置
+     * multiple	是否多选
+     * disabled	是否禁用
+     * value / v-model	绑定值
+     *
+     */
+
+    new Vue({
+        el: "#app",
+        methods: {
+            remoteMethod(query) {
+                if (query !== '') {
+                    this.loading = true;
+                    setTimeout(() => {
+                        this.loading = false;
+                        let queryModel = {
+                            value: '120000',
+                            pinyin: 'tj',
+                            text: '天津'
+                        }
+                        this.updateData(queryModel);
+                        this.filterMethod(query);
+                    }, 200);
+                } else {
+                    this.filterMethod();
+                }
+            },
+            filterMethod(query) {
+                console.log("filterMethod", arguments)
+                if (query) {
+                    this.options = this.data.filter(function (item) {
+                        let queryStr =  query.toLowerCase();
+                        var text = item.text.toLowerCase();
+                        var pinyin = item.pinyin&&item.pinyin.toLowerCase()||'';
+                        var value = item.value.toLowerCase();
+                        if (text.indexOf(queryStr) > -1 || pinyin.indexOf(queryStr) > -1 || value.indexOf(queryStr) > -1) {
+                            return true;
+                        }
+                    });
+                } else {
+                    this.options = this.data;
+                }
+
+            },
+            setData(data) {
+                this.data = data;
+                this.options = this.data
+            },
+            updateData(queryModel) {
+                for (let i in this.data) {
+                    var codeModel = this.data[i];
+                    if (codeModel.value === queryModel.value) {
+                        return;
+                    }
+                }
+                this.data.push(queryModel);
+            }
+
+        },
+        data() {
+            return {
+                loading: false,
+                data: [],
+                options: [],
+                value: ''
+            }
+        },
+        mounted() {
+            let demoData = [{
+                value: '110000',
+                pinyin: 'bj',
+                text: '北京'
+            }, {
+                value: '310000',
+                pinyin: 'sh',
+                text: '上海'
+            }, {
+                value: '320000',
+                pinyin: 'nj',
+                text: '南京'
+            }, {
+                value: '370000',
+                pinyin: 'sd',
+                text: '山东'
+            }, {
+                value: '340000',
+                pinyin: 'Beijing',
+                text: '深圳'
+            }, {
+                value: '000000',
+                pinyin: 'gz',
+                text: '广州'
+            }]
+            this.setData(demoData)
+        },
+
+    });
+</script>
+</body>
+</html>
