@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>列表中检索</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.bootcss.com/vue/2.6.9/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.3/theme-chalk/index.min.css" rel="stylesheet">
+    <!-- 引入组件库 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.3/index.min.js"></script>
+    <!--    excel导入-->
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/css/pluginsCss.css'/>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/plugins.css'/>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/css/luckysheet.css'/>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/assets/iconfont/iconfont.css'/>
+    <script src="https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/js/plugin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/luckysheet.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luckyexcel/dist/luckyexcel.umd.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/PapaParse/5.3.1/papaparse.min.js"></script>
+
+</head>
+<body>
+<div id="SearchInListApp" v-loading="loading">
+    <div class="panel">
+        <div class="panel-row">
+            <div class="panel-item">
+                <span class="text-label">对应库中的列:</span>
+                <el-select v-model="searchCol" placeholder="请选择" size="mini">
+                    <el-option
+                            v-for="item in colOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
+            <div class="panel-item" style="display: flex">
+                <span class="text-label">总行数:</span>
+                <span class="panel-item-count">{{ count }}</span></div>
+        </div>
+        <div class="panel-row">
+            <div class="panel-item" style="width: 100px">
+                <span class="text-label">多列分割类型:</span>
+            </div>
+            <div class="panel-item panel-input">
+                <el-radio
+                        v-model="splitCharCode"
+                        size="mini"
+                        v-for="item in splitCharCodes"
+                        :key="item.value"
+                        :label="item.value">
+                    {{ item.label }}
+                </el-radio>
+                <el-input
+                        size="mini"
+                        style="width: 100px"
+                        placeholder=""
+                        v-model="splitCharDiy"
+                        :disabled="splitCharCode!='-1'">
+                </el-input>
+            </div>
+            <div class="panel-item">
+                <el-button type="primary" plain size="mini" @click="reSpliteTetxFile">执行文本分割</el-button>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="tool">
+            <div class="left">
+                <el-button type="primary" icon="el-icon-folder-opened" size="mini" @click="openFile">打开文件</el-button>
+                <el-button type="primary" icon="el-icon-document-copy" size="mini" @click="copyData">粘贴数据</el-button>
+                <span class="text-label">(*单击表头可选中行与列)</span>
+
+            </div>
+            <div class="right">
+                <el-switch
+                        v-model="headerRow"
+                        active-text="首行作为表头"
+                        @change=setHeaderRow
+                >
+                </el-switch>
+                <el-button type="danger" plain icon="el-icon-s-open" @click=clean size="mini">清空</el-button>
+                <el-button type="danger" plain icon="el-icon-delete" @click=deleteRow size="mini">删除</el-button>
+            </div>
+        </div>
+        <div class="table" id="luckysheet">
+
+        </div>
+    </div>
+</div>
+</body>
+<link rel='stylesheet' href='search_inlist.css'/>
+<script type="module">
+    import {SearchInListCompoment} from './search_inlist.js';
+    window.searchInListCompoment = new SearchInListCompoment({tableName:"TP_CARD_VIEW"});
+    //统一异常处理
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.log('捕获到异常：',arguments);
+        alert(message);
+    }
+    window.addEventListener("unhandledrejection", function(e){
+        console.log('捕获到异常：',arguments);
+        alert(e.reason);
+    });
+</script>
+
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/css/pluginsCss.css'/>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/plugins.css'/>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/css/luckysheet.css'/>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/assets/iconfont/iconfont.css'/>
+    <script src="https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/js/plugin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/luckysheet.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luckyexcel/dist/luckyexcel.umd.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/PapaParse/5.3.1/papaparse.min.js"></script>
+
+</head>
+<body>
+<div>
+    <input type="button" onclick="openFile()" value="打开文件"></input>
+    <input type="button" onclick="getSelect()" value="获取选中"></input>
+</div>
+
+<div id="luckysheet"
+     style="margin:0px;padding:0px;width:100%;height:800px;"></div>
+</body>
+<script>
+    $(function () {
+        //配置项
+        var options = {
+            lang: 'zh',
+            container: 'luckysheet'
+        }
+        window.luckysheet.create(options)
+    })
+
+    //打开文件
+    function openFile() {
+        var _this = this;
+        var fileInputId = "in_list_file_input_id";
+        var $file = $("#" + fileInputId);
+        if ($file.length === 0) {
+            $("body").append('<input id="' + fileInputId + '" type="file" multiple accept="*" style="display:none;">');
+            $file = $("#" + fileInputId);
+            //完成选择文件
+            $file.change(function (evt) {
+                var files = evt.target.files;
+                if (files == null || files.length === 0) {
+                    return;
+                }
+
+                let file = files[0]
+                parseFile(file);
+            });
+        }
+        //点击文件，打开选择文件对话框
+        $file.click();
+    }
+
+    /**
+     * 文件解析
+     */
+    function parseFile(file){
+        let name = file.name;
+        let suffixArr = name.split("."), suffix = suffixArr[suffixArr.length - 1];
+        if (suffix === "xlsx") {
+            LuckyExcel.transformExcelToLucky(file, function (exportJson) {
+                if (exportJson.sheets == null || exportJson.sheets.length == 0) {
+                    alert("xlsx解析失败");
+                    return;
+                }
+                uploadSheet(exportJson.sheets);
+            });
+        } else if (suffix === "txt" || suffix === "csv") {
+            var reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function (evt) {
+                var result = evt.target.result;
+
+            };
+            var options = {
+                delimiter: "",	// 分隔符,不填自动判断
+                newline: "",	// 换行符,不填自动判断
+                delimitersToGuess: [',', '\t', '|', ';', ' ', Papa.RECORD_SEP, Papa.UNIT_SEP],//支持的分隔符
+                complete:function (results){
+                    console.log(results.data)
+                    var sheets = [{
+                        "name": "Sheet1",
+                        "color": "",
+                        "status": "1",
+                        "order": "0",
+                        "data": results.data,
+                        "config": {},
+                        "index": 0
+                    }];
+                    uploadSheet(sheets);
+                }
+            };
+            Papa.parse(file, options);
+        } else {
+            alert("目前支持xlsx、txt、csv");
+            return;
+        }
+    }
+    /**
+     * 更新Excel
+     * @param sheets  Excel数据
+     */
+    function uploadSheet(sheets){
+        window.luckysheet.destroy();
+        window.luckysheet.create({
+            lang: 'zh',
+            container: 'luckysheet',
+            data: sheets
+        });
+    }
+
+    function getSelect(){
+        var selectJson = window.luckysheet.getRangeJson();
+        var count = selectJson.length;
+        var cols = Object.keys(selectJson[0]).length;
+        alert("选中了"+count+"行"+cols+"列")
+    }
+
+</script>
+</html>
