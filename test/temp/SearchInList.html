@@ -97,7 +97,7 @@
     //统一异常处理
     window.onerror = function(message, source, lineno, colno, error) {
         console.log('捕获到异常：',arguments);
-        alert(message);
+        alert(error);
     }
     window.addEventListener("unhandledrejection", function(e){
         console.log('捕获到异常：',arguments);

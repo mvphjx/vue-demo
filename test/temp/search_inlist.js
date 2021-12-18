@@ -29,57 +29,6 @@ const SearchInListCompoment = function () {
         }, {
             value: 'MIS_PERSON_NUM',
             label: 'MIS人员编号'
-        }, {
-            value: 'SHENFEN_ID',
-            label: '身份证号'
-        }, {
-            value: 'ID',
-            label: '卡片ID'
-        }],
-        "LP_CASE_VIEW": [{
-            value: 'CE_NUM',
-            label: '事件编号'
-        }, {
-            value: 'ABIS_CE_NUM',
-            label: '系统事件编号'
-        }, {
-            value: 'SCENE_INVEST_NUM',
-            label: '现勘号'
-        }, {
-            value: 'ID',
-            label: '案事件ID'
-        }],
-        "LP_CARD_VIEW": [{
-            value: 'CARD_NUM',
-            label: '卡片号码'
-        }, {
-            value: 'CE_NUM',
-            label: '事件编号'
-        }, {
-            value: 'ABIS_CE_NUM',
-            label: '系统事件编号'
-        }, {
-            value: 'SCENE_INVEST_NUM',
-            label: '现号'
-        }, {
-            value: 'ID',
-            label: '卡片ID'
-        }],
-        "MATCH_VIEW": [{
-            value: 'QRY_NUM',
-            label: '比对任务号码'
-        }, {
-            value: 'ID',
-            label: '比对任务ID'
-        }, {
-            value: 'FIRST_SRC_CARD_NUM',
-            label: '源卡卡号'
-        }, {
-            value: 'ABIS_CE_NUM',
-            label: '系统事件编号'
-        }, {
-            value: 'PERSON_NUM',
-            label: '人员编号'
         }]
     };
     var tableName;
@@ -189,7 +138,8 @@ const SearchInListCompoment = function () {
                     delimitersToGuess: [',', '\t', '|', ';', ' ', papaCSV.RECORD_SEP, papaCSV.UNIT_SEP],//支持的分隔符
                 },
                 sheetLastUpdateTime: null,
-                rowLimit:1000
+                rowLimit:1000,
+                colNamesToGuess: ["ID"]
             },
             methods: {
                 setHeaderRow() {//更新表头 样式
@@ -422,6 +372,9 @@ const SearchInListCompoment = function () {
                  * 获取查询条件
                  */
                 getWhereParam() {
+                    if(!this.searchCol){
+                        throw "请选择查询列";
+                    }
                     var selectJson = luckySheet.getRangeJson();
                     var count = selectJson.length;
                     var cols = Object.keys(selectJson[0]).length;
@@ -503,12 +456,8 @@ const SearchInListCompoment = function () {
                     }
                     console.log("header line", line)
                     //根据列关键字判断 是否是表头
-                    var colNames = ["ID", "PERSON_NUM", "CARD_NUM", "SHENFEN_ID"]
-                    colNames.push("CE_NUM", "ABIS_CE_NUM", "SCENE_INVEST_NUM", "QRY_NUM", "FIRST_SRC_CARD_NUM");
-                    colNames.push("人员编号", "卡片号码", 'MIS人员编号', '身份证', '身份证号', '身份证号码');
-                    colNames.push('姓名', '人员类别', '人员上报编号', '案件上报编号', '上报编号');
-                    for (let key in colNames) {
-                        if (line.indexOf("," + colNames[key] + ",") > -1) {
+                    for (let key in this.colNamesToGuess) {
+                        if (line.indexOf("," + this.colNamesToGuess[key] + ",") > -1) {
                             this.headerRow = true;
                             break;
                         }

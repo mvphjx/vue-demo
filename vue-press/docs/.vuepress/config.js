@@ -8,6 +8,6 @@ module.exports = {
             {text: '官方文档', link: 'https://vuepress.vuejs.org/'},
         ],
         lastUpdated: 'Last Updated',
-        sidebar: ['/', '/guide/build', '/guide/dev']
+        sidebar: ['/', '/guide/build', '/guide/dev', '/guide/searchinlist']
     }
 }
