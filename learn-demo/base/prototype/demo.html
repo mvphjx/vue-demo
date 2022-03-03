@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prototype</title>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
+    <!-- 引入样式 -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.3/theme-chalk/index.min.css" rel="stylesheet">
+    <!-- 引入组件库 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.3/index.min.js"></script>
+</head>
+<body>
+<div id="app" style="margin: 0 auto">
+
+    JavaScript中的对象有一个特殊的[[Prototype]]内置属性，其实就是对于其他对象的引用。
+    <br>
+    <br>
+
+</div>
+
+<script>
+    var a = {
+        "count": 0
+    }
+    /**
+     * enumerable
+     * writable
+     * configurable
+     * value
+     */
+    var b = Object.create(a, {
+        count1: {
+            enumerable: false,
+            writable: true,
+            configurable: false,
+            value: 1
+        },
+        count2: {
+            enumerable: true,
+            writable: false,
+            configurable: false,
+            value: 2
+        }
+
+    });
+    console.warn("使用create，将b关联到a对象,b.count:", b.count);
+    console.warn("for..in 查找原型链");
+    for (let bKey in b) {
+        console.log(bKey)
+    }
+
+    console.warn("b.hasOwnProperty(\"count\")", b.hasOwnProperty("count"));
+    console.warn("b.hasOwnProperty(\"count1\")", b.hasOwnProperty("count1"));
+    console.warn("b.hasOwnProperty(\"count2\")", b.hasOwnProperty("count2"));
+
+    console.log("a:", a);
+    console.log("b:", b);
+
+    new Vue({
+        el: "#app",
+        data() {
+            return {}
+        },
+        methods: {},
+        mounted() {
+
+        }
+    });
+    //Object.create 的polyfill代码实现
+    if (!Object.create) {
+        Object.create = function (o) {
+            function F() {
+            }
+
+            F.prototype = o;
+            return new F();
+        }
+    }
+    //test
+    var Foo = {}
+    var a1 = Object.create(Foo);
+    a1;
+    Object.defineProperty(Foo,"constructor",{
+       enumerable:false,
+       value:function Gotcha(){}
+    });
+    a1;
+
+</script>
+</body>
+</html>
