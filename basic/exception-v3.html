@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>异常处理-VUE3</title>
+  <script src="https://lib.baomitu.com/vue/3.2.31/vue.global.js"></script>
+
+  <meta charset="UTF-8">
+</head>
+<body>
+<div id="app">
+  {{ name }}
+  <br>
+  <input type="button" @click="error1" value="error1"></input>
+  <input type="button" @click="error2" value="async error2"></input>
+  <input type="button" @click="error3" value="async error3"></input>
+  <input type="button" @click="error4" value="async error4"></input>
+</div>
+</body>
+<script>
+  async function error2() {
+    throw '这是一个 async error2'
+  }
+
+  async function error3() {
+    throw '这是一个 async error3'
+  }
+
+  async function error4() {
+    return Promise.reject(new Error('这是一个 async error4'))
+  }
+
+  var app = Vue.createApp({
+    data() {
+      return { name: 'exception-v3.html' }
+    },
+    methods: {
+      error1() {
+        throw '这是一个一般的error1'
+      },
+      error2() {
+        error2()
+      },
+      error3() {
+        error3().then().catch(err => {
+          //虽然能在这里捕获，但是vue无法全局捕获
+          throw err
+        })
+      }, error4() {
+        error4()
+      }
+    }
+  })
+  // 全局异常处理,使用try catch实现，无法捕获Promise错误
+  app.config.errorHandler = function(error, vm) {
+    console.info('Vue异常', error)
+  }
+  const vm = app.mount('#app')
+  // async 异常处理
+  window.addEventListener('unhandledrejection', function(e) {
+    console.info('window异常：', e.reason)
+    //去掉控制台的异常显示
+    e.preventDefault()
+  })
+</script>
+
+</html>
