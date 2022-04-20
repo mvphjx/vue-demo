@@ -26,14 +26,14 @@ WebAssembly 有一套完整的语义，wasm 是体积小且加载快并且兼容
 - 计算方面使用 WebAssembly，UI使用JavaScript/HTML。
 - 整个代码库都用 WebAssembly。例如游戏开发，再议……
 
-### wasm API
+### JavaScript API
 据说正在支持script module 引入。
 目前只能通过 JavaScript 来加载和编译。基础的加载，需要3步：
 - 获取 .wasm 二进制文件，将它转换成类型数组或者 ArrayBuffer
 - 将二进制数据编译成一个 WebAssembly.Module
 - 使用 imports 实例化这个 WebAssembly.Module，获取 exports。
 
-### wasm Demo
+### Demo
 下面是加载add.wasm（加法计算SDK）,在浏览器实现调用的例子。
 
 ```javascript
@@ -60,6 +60,21 @@ function fetchAndInstantiate(url, importObject) {
 }
 
 ```
+## 编写方式
+
+### 从C/C++编译为WebAssembly
+
+当你使用C/C++编写了代码后，你可以使用诸如Emscripten的工具把它编译为.wasm文件。让我们看看这是如何工作的。
+
+https://developer.mozilla.org/zh-CN/docs/WebAssembly/C_to_wasm
+
+
+### 从Rust编译为WebAssembly
+
+https://www.rust-lang.org/zh-CN/what/wasm
+
+
+
 
 ##
 
