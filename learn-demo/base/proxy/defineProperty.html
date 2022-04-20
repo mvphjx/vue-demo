@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ES5的defineProperty</title>
+
+</head>
+<body>
+<div id="app" style="margin: 0 auto">
+
+
+</div>
+
+<script>
+
+
+  let person = {
+    age: 100,
+    _age: 100
+  }
+  Object.defineProperty(person, 'age', {
+    get: function() {
+      return this._age
+    },
+    set: function(newValue) {
+      console.log('set', newValue)
+      if (!Number.isInteger(newValue)) {
+        throw new TypeError('The age is not an integer')
+      }
+      if (newValue > 200) {
+        throw new RangeError('The age seems invalid')
+      }
+      // 如果使用this.age 会导致死循环
+      this._age = newValue
+
+    }
+  })
+  console.log('age', person.age)
+  try {
+    person.age = 'young'
+    // 抛出异常: Uncaught TypeError: The age is not an integer
+  } catch (e) {
+    console.log(e)
+  }
+  try {
+    person.age = 300
+    // 抛出异常: Uncaught RangeError: The age seems invalid
+  } catch (e) {
+    console.log(e)
+  }
+
+  person.age = 50
+  console.log('ok', person.age)
+</script>
+</body>
+</html>
