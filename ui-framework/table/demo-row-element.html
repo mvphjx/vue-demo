@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>vue组件响应式</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.js"></script>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <!-- 引入组件库 -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <meta charset="UTF-8">
+</head>
+<body>
+<div id="app">
+  <el-row>
+    有Key组件,$children属性排序未变
+    <el-button v-for="(item,index) in newColumnData"
+               :circle="item.circle"
+               :key="item.key"
+               align="center"
+    >
+      {{ item.value }}
+    </el-button>
+  </el-row>
+  {{row1}}
+  <el-row>
+    无Key组件,$children属性排序改变
+    <el-button v-for="(item,index) in newColumnData"
+               :circle="item.circle"
+               align="center"
+    >
+      {{ item.value }}
+    </el-button>
+  </el-row>
+  {{row2}}
+  <el-col>
+    <el-button type="success" @click="toTest">点击测试</el-button>
+    <el-button type="success" @click="monitorDom">开启Dom监听</el-button>
+    <el-button type="success" @click="showProps">ShowChildrenProps</el-button>
+  </el-col>
+
+</div>
+<style>
+    #app {
+    }
+</style>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data() {
+      return {
+        newColumnData: [],
+        unitDetaiList: [],
+        row1:[],
+        row2:[],
+        columnData: [{
+          'disable': true,
+          'width': 160,
+          'orderBy': 9,
+          'value': '身份证',
+          'key': 'gmsfhm',
+          'required': true,
+          'circle': false
+        }, {
+          'disable': true,
+          'width': 150,
+          'orderBy': 1,
+          'value': '姓名',
+          'key': 'personName',
+          'required': false,
+          'circle': true
+        }]
+      }
+    },
+    methods: {
+      showProps(){
+        {
+          this.row1=[];
+          if(this.$children&&this.$children[0]&&this.$children[0].$children[0].$props){
+            this.row1.push("circle:"+this.$children[0].$children[0].$props.circle)
+            this.row1.push("circle:"+this.$children[0].$children[1].$props.circle)
+          }
+        }
+        {
+          this.row2 =[];
+          if(this.$children&&this.$children[1]&&this.$children[1].$children[0].$props){
+            this.row2.push("circle:"+this.$children[1].$children[0].$props.circle)
+            this.row2.push("circle:"+this.$children[1].$children[1].$props.circle)
+          }
+        }
+
+      },
+      toTest() {
+        // 第一个身份证和第二个姓名互换一下，把身份证放第二个，姓名放第一个
+        this.newColumnData = [{
+          'disable': true,
+          'width': 150,
+          'orderBy': 0,
+          'value': '姓名',
+          'key': 'personName',
+          'required': false,
+          'circle': true
+        }, {
+          'disable': true,
+          'width': 160,
+          'orderBy': 1,
+          'value': '身份证',
+          'key': 'gmsfhm',
+          'required': true,
+          'circle': false
+        }]
+      },
+      monitorDom() {
+        var data = this.$children[0].$children[0].$props
+        data._circle = data.circle
+        Object.defineProperty(data, 'circle', {
+          get: function() {
+            console.log('有Key组件 get :', this._circle)
+            return this._circle
+          },
+          set: function(newValue) {
+            console.log('有Key组件 set :', newValue)
+            this._circle = newValue
+            debugger
+          }
+        })
+
+        {
+          var data = this.$children[1].$children[0].$props
+          data._circle = data.circle
+          Object.defineProperty(data, 'circle', {
+            get: function() {
+              console.log('无Key组件 get :', this._circle)
+              return this._circle
+            },
+            set: function(newValue) {
+              console.log('无Key组件 set :', newValue)
+              this._circle = newValue
+              debugger
+            }
+          })
+        }
+
+      }
+    },
+    mounted() {
+      this.newColumnData = this.columnData
+    }
+  })
+</script>
+</body>
+</html>

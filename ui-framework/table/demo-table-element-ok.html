@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>demo-table-element-ok</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.js"></script>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <!-- 引入组件库 -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <meta charset="UTF-8">
+</head>
+<body>
+<div id="app" style="margin: 0 auto">
+
+  <el-table :data="unitDetaiList"
+            border
+            style="width: 100%"
+            stripe
+            size="small"
+  >
+    <!--
+    建红看这里：
+    给这个v-for加：key
+    1. 不加:key               (点击按钮之后，成功)
+    2. :key="item.orderBy"   (点击按钮之后，成功)
+    3. :key="item.key"       (点击按钮之后，不行)
+4. :key="index"          也可以，就是:key="item.key"
+    -->
+    <el-table-column
+      v-for="(item,index) in newColumnData"
+      :width="item.width"
+      :label="item.value"
+      :key="index"
+      align="center"
+    >
+    </el-table-column>
+  </el-table>
+  <el-button type="success" @click="toTest">点击测试</el-button>
+  <el-button type="success" @click="monitorDom">开启Dom监听</el-button>
+  <el-button type="success" @click="monitorStore">开启Store监听</el-button>
+
+</div>
+<style>
+    #app {
+        display: flex;
+
+    }
+</style>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data() {
+      return {
+        newColumnData: [],
+        unitDetaiList: [],
+        columnData: [{
+          'disable': true,
+          'width': 160,
+          'orderBy': 9,
+          'value': '身份证',
+          'key': 'gmsfhm',
+          'required': true
+        }, {
+          'disable': true,
+          'width': 150,
+          'orderBy': 1,
+          'value': '姓名',
+          'key': 'personName',
+          'required': false
+        }]
+      }
+    },
+    methods: {
+      toTest() {
+        // 第一个身份证和第二个姓名互换一下，把身份证放第二个，姓名放第一个
+        this.newColumnData = [{
+          'disable': true,
+          'width': 150,
+          'orderBy': 0,
+          'value': '姓名',
+          'key': 'personName',
+          'required': false
+        }, {
+          'disable': true,
+          'width': 160,
+          'orderBy': 1,
+          'value': '身份证',
+          'key': 'gmsfhm',
+          'required': true
+        }]
+
+      },
+      monitorDom() {
+        var data = app.$children[0].$children[2].$props
+        data._label = data.label
+        Object.defineProperty(data, 'label', {
+          get: function() {
+            console.log('monitorDom get :', this._label)
+            return this._label
+          },
+          set: function(newValue) {
+            console.log('monitorDom set :', newValue)
+            this._label = newValue
+            debugger
+          }
+        })
+      },
+      monitorStore2() {
+        //  TODO  不生效
+        var data = app.$children[0].store.states.columns[0]
+        app.$children[0].store.states.columns[0] = new Proxy(data, {
+          set: function(obj, prop, value) {
+            if (prop === 'label') {
+              debugger
+            }
+            obj[prop] = value
+            return true
+          }
+        })
+      },
+      monitorStore() {
+        var data = app.$children[0].store.states._columns[0]
+        data._label = data.label
+        Object.defineProperty(data, 'label', {
+          get: function() {
+            console.log('monitorStore get :', this._label)
+            return this._label
+          },
+          set: function(newValue) {
+            console.log('monitorStore set :', newValue)
+            this._label = newValue
+            debugger
+          }
+        })
+      }
+    },
+    mounted() {
+      this.newColumnData = this.columnData
+    }
+  })
+</script>
+</body>
+</html>

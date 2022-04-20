@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>demo-table-element-wrong</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.js"></script>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <!-- 引入组件库 -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <meta charset="UTF-8">
+</head>
+<body>
+<div id="app" style="margin: 0 auto">
+  <el-table :data="unitDetaiList"
+            ref = "eleTable"
+            border
+            style="width: 100%"
+            stripe
+            size="small"
+  >
+    <!--
+    建红看这里：
+    给这个v-for加：key
+    1. 不加:key               (点击按钮之后，成功)
+    2. :key="item.orderBy"   (点击按钮之后，成功)
+    3. :key="item.key"       (点击按钮之后，不行)
+4. :key="index"          也可以，就是:key="item.key"
+    -->
+    <el-table-column
+      v-for="(item,index) in newColumnData"
+      :width="item.width"
+      :label="item.value"
+      :prop="item.key"
+      :key="item.key"
+      align="center"
+    >
+    </el-table-column>
+  </el-table>
+  <el-button type="success" @click="monitorDom">开启Dom监听</el-button>
+  <el-button type="success" @click="toTest">点击测试</el-button>
+  <el-button type="success" @click="showInfo">展示参数</el-button>
+  <el-button type="success" @click="fix1">解决方案1</el-button>
+  <el-button type="success" @click="fix2">解决方案2</el-button>
+  <br>
+  {{ info }}
+</div>
+<style>
+    #app {
+
+
+    }
+</style>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data() {
+      return {
+        newColumnData: [],
+        unitDetaiList: [{
+          "id": 684124,
+          "gmsfhm": "436610199704291072",
+          "personName": "薛阳月",
+        }],
+        info: '',
+        columnData: [{
+          'disable': true,
+          'width': 160,
+          'orderBy': 9,
+          'value': '身份证',
+          'key': 'gmsfhm',
+          'required': true
+        }, {
+          'disable': true,
+          'width': 150,
+          'orderBy': 1,
+          'value': '姓名',
+          'key': 'personName',
+          'required': false
+        }, {
+          'disable': true,
+          'width': 150,
+          'orderBy': 1,
+          'value': 'ID',
+          'key': 'id',
+          'required': false
+        }]
+      }
+    },
+    methods: {
+      toTest() {
+        // 身份证,姓名互换
+        this.newColumnData = [{
+          'disable': true,
+          'width': 150,
+          'orderBy': 0,
+          'value': '姓名',
+          'key': 'personName',
+          'required': false
+        }, {
+          'disable': true,
+          'width': 160,
+          'orderBy': 1,
+          'value': '身份证',
+          'key': 'gmsfhm',
+          'required': true
+        },{
+          'disable': true,
+          'width': 150,
+          'orderBy': 1,
+          'value': 'ID',
+          'key': 'id',
+          'required': false
+        }]
+        /**
+         * 无效原因
+         *
+         * Vue方面：
+         *
+         * 监听到数据改变，Vue._update的时候，sameVnode会根据key辅助判断节点是否相同。
+         *
+         * 有key，判定为不同vnode：
+         * sameVnode(oldStartVnode, newStartVnode)=false
+         * sameVnode(oldStartVnode, newVnode2)=true
+         * 关键是vue并没有修改vnode排序，而是直接修改了dom的顺序。
+         *
+         * 没有key时，判定为相同vnode，即sameVnode(oldStartVnode, newStartVnode)=true：
+         * 两个vnode重新把属性赋值了一遍，vnode内容变化，触发了eleTable更新。
+         *
+         * Element方面：
+         * eleTable，有store缓存列配置，不支持响应式。
+         * el-table-column实际上绑定的是空dom。
+         * eleTable监听的是vnode排序，而当vue只dom排序时，会出现不同步。
+         * 但是换一个没有缓存层，直接使用mvvm的组件，不会有问题
+         *
+         *
+         */
+      },
+      monitorDom() {
+        var data = this.$refs.eleTable.$children[2].$props
+        data._label = data.label
+        Object.defineProperty(data, 'label', {
+          get: function() {
+            console.log('monitorDom get :', this._label)
+            return this._label
+          },
+          set: function(newValue) {
+            console.log('monitorDom set :', newValue)
+            this._label = newValue
+            debugger
+          }
+        })
+      },
+      showInfo() {
+        var props = [];
+        var columns = [];
+        var info = {
+          '组件传参': props, '组件缓存': columns
+        }
+        for (let j = 0; j < this.newColumnData.length; j++) {
+          var $props = this.$refs.eleTable.$children[j+2].$props;
+          props.push($props.label);
+          var _columns = this.$refs.eleTable.store.states.columns;
+          columns.push(_columns[j].id + ',' + _columns[j].label)
+        }
+        this.info = JSON.stringify(info)
+      },
+      fix1() {
+        //this.$forceUpdate(); 无效
+        //屏蔽vue的渲染优化机制，重新挂载el-table-column
+        this.newColumnData =  [];
+        setTimeout(() => {
+          this.newColumnData = [{
+            'disable': true,
+            'width': 150,
+            'orderBy': 0,
+            'value': '姓名',
+            'key': 'personName',
+            'required': false
+          }, {
+            'disable': true,
+            'width': 160,
+            'orderBy': 1,
+            'value': '身份证',
+            'key': 'gmsfhm',
+            'required': true
+          },{
+            'disable': true,
+            'width': 150,
+            'orderBy': 1,
+            'value': 'ID',
+            'key': 'id',
+            'required': false
+          }]
+        })
+      },
+      fix2() {
+        //不重新挂载，直接调整ele-table缓存的排序
+        var _columns =this.$refs.eleTable.store.states._columns;
+        var temp1 = _columns[0];
+        _columns[0]=_columns[1];
+        _columns[1]=temp1;
+        app.$children[0].store.updateColumns();
+      },
+      fix3() {
+        //对子组件el-table-column，执行内容更新，触发table缓存更新
+
+      }
+    },
+    mounted() {
+      this.newColumnData = this.columnData
+    }
+  })
+</script>
+</body>
+</html>
