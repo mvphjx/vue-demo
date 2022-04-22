@@ -14,6 +14,7 @@
 <div id="app" style="margin: 0 auto">
 
   <el-table :data="unitDetaiList"
+            ref="eleTable"
             border
             style="width: 100%"
             stripe
@@ -74,25 +75,12 @@
     methods: {
       toTest() {
         // 第一个身份证和第二个姓名互换一下，把身份证放第二个，姓名放第一个
-        this.newColumnData = [{
-          'disable': true,
-          'width': 150,
-          'orderBy': 0,
-          'value': '姓名',
-          'key': 'personName',
-          'required': false
-        }, {
-          'disable': true,
-          'width': 160,
-          'orderBy': 1,
-          'value': '身份证',
-          'key': 'gmsfhm',
-          'required': true
-        }]
-
+        let temp = this.newColumnData[0]
+        this.newColumnData[0] = this.newColumnData[1]
+        this.newColumnData.splice(1, 1, temp)
       },
       monitorDom() {
-        var data = app.$children[0].$children[2].$props
+        var data = this.$refs.eleTable.$children[2].$props
         data._label = data.label
         Object.defineProperty(data, 'label', {
           get: function() {
@@ -108,31 +96,50 @@
       },
       monitorStore2() {
         //  TODO  不生效
-        var data = app.$children[0].store.states.columns[0]
-        app.$children[0].store.states.columns[0] = new Proxy(data, {
-          set: function(obj, prop, value) {
-            if (prop === 'label') {
-              debugger
-            }
-            obj[prop] = value
+        var _columns = this.$refs.eleTable.store.states._columns
+        var monitorOne = false
+        _columns.forEach((column,index) => {
+          if (monitorOne) {
             return true
+          }
+          if (column.label) {
+            monitorOne = true;
+            _columns[index] = new Proxy(column, {
+              set: function(obj, prop, value) {
+                if (prop === 'label') {
+                  debugger
+                }
+                obj[prop] = value
+                return true
+              }
+            });
           }
         })
       },
       monitorStore() {
-        var data = app.$children[0].store.states._columns[0]
-        data._label = data.label
-        Object.defineProperty(data, 'label', {
-          get: function() {
-            console.log('monitorStore get :', this._label)
-            return this._label
-          },
-          set: function(newValue) {
-            console.log('monitorStore set :', newValue)
-            this._label = newValue
-            debugger
+        var _columns = this.$refs.eleTable.store.states._columns
+        var monitorOne = false
+        _columns.forEach((column) => {
+          if (monitorOne) {
+            return true
+          }
+          if (column.label) {
+            monitorOne = true
+            column._label = column.label
+            Object.defineProperty(column, 'label', {
+              get: function() {
+                console.log('monitorStore get :', this._label)
+                return this._label
+              },
+              set: function(newValue) {
+                console.log('monitorStore set :', newValue)
+                this._label = newValue
+                debugger
+              }
+            })
           }
         })
+
       }
     },
     mounted() {

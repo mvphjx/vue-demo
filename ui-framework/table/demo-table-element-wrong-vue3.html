@@ -2,12 +2,12 @@
   "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <title>demo-table-element-wrong</title>
-  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.js"></script>
-  <!-- 引入样式 -->
-  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-  <!-- 引入组件库 -->
-  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <title>demo-table-element-wrong-vue3-elementp</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.2.33/vue.global.js"></script>
+  <!-- 导入样式 -->
+  <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
+  <!-- 导入组件库 -->
+  <script src="//unpkg.com/element-plus"></script>
   <meta charset="UTF-8">
 </head>
 <body>
@@ -19,14 +19,6 @@
             stripe
             size="small"
   >
-    <!--
-    建红看这里：
-    给这个v-for加：key
-    1. 不加:key               (点击按钮之后，成功)
-    2. :key="item.orderBy"   (点击按钮之后，成功)
-    3. :key="item.key"       (点击按钮之后，不行)
-4. :key="index"          也可以，就是:key="item.key"
-    -->
     <el-table-column
       v-for="(item,index) in newColumnData"
       :width="item.width"
@@ -52,8 +44,7 @@
     }
 </style>
 <script>
-  var app = new Vue({
-    el: '#app',
+  Vue.createApp({
     data() {
       return {
         newColumnData: [],
@@ -173,11 +164,11 @@
       },
       fix2() {
         //不重新挂载，直接调整ele-table缓存的排序
-        var _columns =this.$refs.eleTable.store.states._columns;
+        var _columns =this.$refs.eleTable.store.states._columns.value;
         var temp1 = _columns[0];
         _columns[0]=_columns[1];
         _columns[1]=temp1;
-        app.$children[0].store.updateColumns();
+        this.$refs.eleTable.store.updateColumns();
       },
       fix3() {
         //对子组件el-table-column，执行内容更新，触发table缓存更新
@@ -187,7 +178,7 @@
     mounted() {
       this.newColumnData = this.columnData
     }
-  })
+  }).use(ElementPlus).mount("#app");
 </script>
 </body>
 </html>
