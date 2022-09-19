@@ -33,6 +33,11 @@
     for (let name of names) {
         console.log(name);
     }
+    console.log("----forEach循环");
+    names.forEach(function (value, index, arrays) {
+      console.log(value, index, arrays)
+    })
+
 
     console.log("--------对象遍历--------");
     console.warn("----for in 循环");
