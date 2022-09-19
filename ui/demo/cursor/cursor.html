@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div id="fakeBody" class="more">
+  <table>
+    <tr class="pointer">
+      <td>Yup, a pointer row normally...</td>
+    </tr>
+    <tr class="wait">
+      <td>wait...</td>
+    </tr>
+  </table>
+</div>
+</body>
+<style>
+    .pointer {
+        cursor: pointer;
+    }
+
+    .wait {
+        cursor: wait;
+    }
+
+    .more {
+        cursor: url(minutia.cur),auto !important;
+    }
+
+</style>
+</html>
