@@ -6,16 +6,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
 </head>
 <body>
+<h1>RSA Encryption Example &jsencrypt </h1>
+<input type="text" id="inputText" placeholder="Enter text to encrypt">
+<button onclick="encryptText()">Encrypt</button>
+<p id="encryptedText"></p>
 <script>
+  /**
+   * RSA是一种广泛使用的非对称加密算法，通常使用一对公钥和私钥：公钥用于加密数据，而私钥用于解密。
+   * CHatGPT：JS加密字符串，Java解密字符串，使用RSA，写出 html、java代码示例。java基于javax.crypto实现
+   * @type {string}
+   */
   const publicKey = 'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKoXqTyDplkp20aaBt6Ouk605tfD3xyJ7oqI9cdv49VS+dUMWvAQyaVz8upIwe/oNziEGT1rxPDQAu0BOwsdG80CAwEAAQ=='
-  // 加密
-  function encrypt(txt) {
+
+  function encryptText() {
+    var inputText = document.getElementById('inputText').value;
     const encryptor = new JSEncrypt()
     encryptor.setPublicKey(publicKey) // 设置公钥
-    return encryptor.encrypt(txt) // 对数据进行加密
+    var encryptedText = encryptor.encrypt(inputText) // 对数据进行加密
+    document.getElementById('encryptedText').innerText = 'Encrypted: ' + encryptedText;
   }
-  var passwordEncrypt = encrypt('11223344')
-  console.log(passwordEncrypt)
 </script>
 </body>
 </html>
