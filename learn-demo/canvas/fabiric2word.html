@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fabric.js 导出到 Word 示例</title>
+  <!-- 引入 Fabric.js 库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
+  <!-- 正确加载 docx 库 -->
+  <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+</head>
+<body>
+
+<canvas id="canvas" width="500" height="500" style="border:1px solid #000;"></canvas>
+<button id="downloadWord">导出为Word</button>
+<button id="downloadPNG">下载PNG</button>
+
+<script>
+  // 初始化 Fabric.js 画布
+  const canvas = new fabric.Canvas('canvas');
+
+  // 绘制一些简单的图形
+  const rect = new fabric.Rect({
+    left: 100,
+    top: 100,
+    fill: 'red',
+    width: 100,
+    height: 100
+  });
+
+  const circle = new fabric.Circle({
+    left: 250,
+    top: 150,
+    fill: 'blue',
+    radius: 50
+  });
+
+  const text = new fabric.Textbox('方式1导出png转为图像元素\n方式2导出Json映射为docx元素', {
+    left: 100,
+    top: 250,
+    fontSize: 30
+  });
+
+  // 将图形添加到画布
+  canvas.add(rect);
+  canvas.add(circle);
+  canvas.add(text);
+
+  // 导出画布为 PNG 图像
+  function exportCanvasAsImage() {
+    return canvas.toDataURL({ format: 'png' });
+  }
+  var imgBase64
+  // 创建 Word 文档并插入图片
+  async function createWordDocument() {
+    // 获取 Fabric 画布图像的 Base64 编码
+    imgBase64 = exportCanvasAsImage();
+    // 使用 docx 库创建一个文档
+    const doc = new docx.Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new docx.Paragraph({
+              children: [
+                new docx.TextRun("这是从 Fabric.js 导出的画布："),
+              ]
+            }),
+            new docx.Paragraph({
+              children: [
+                new docx.ImageRun({
+                  data: imgBase64,
+                  transformation: {
+                    width: 500, // 图片宽度
+                    height: 500 // 图片高度
+                  }
+                })
+              ]
+            })
+
+          ]
+        }
+      ]
+    });
+
+    // 导出并下载 Word 文件
+    const blob = await docx.Packer.toBlob(doc);
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'fabric_canvas.docx';
+    link.click();
+  }
+
+  // 将 Base64 编码字符串转换为二进制数据 (Uint8Array)
+  function base64ToUint8Array(base64) {
+    const binaryString = atob(base64);  // atob() 将 Base64 解码为二进制字符串
+    const length = binaryString.length;
+    const bytes = new Uint8Array(length);
+
+    for (let i = 0; i < length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);  // 将二进制字符串转换为字节
+    }
+
+    return bytes;
+  }
+
+  // 绑定导出按钮
+  document.getElementById('downloadWord').addEventListener('click', createWordDocument);
+  document.getElementById('downloadPNG').addEventListener('click', downloadPNGFun);
+  function downloadPNGFun(){
+    const _imgBase64 = exportCanvasAsImage();
+    const link = document.createElement('a');
+    link.href = _imgBase64;
+    link.download = 'imgBase64.png';
+    link.click();
+  }
+</script>
+
+</body>
+</html>
