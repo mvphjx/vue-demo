@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import About from '../views/About.vue'
 import XmlJsonTest from '../views/XmlJsonTest.vue'
+import DateValidationTest from '../views/DateValidationTest.vue'
 
 Vue.use(VueRouter)
 
@@ -21,6 +22,11 @@ const routes = [
         path: '/xml-json-test',
         name: 'XmlJsonTest',
         component: XmlJsonTest
+    },
+    {
+        path: '/date-validation-test',
+        name: 'DateValidationTest',
+        component: DateValidationTest
     }
 ]
 

@@ -3,7 +3,8 @@
     <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link> |
-      <router-link to="/xml-json-test">XML/JSON 测试</router-link>
+      <router-link to="/xml-json-test">XML/JSON 测试</router-link> |
+      <router-link to="/date-validation-test">日期校验测试</router-link>
     </div>
     <router-view/>
   </div>

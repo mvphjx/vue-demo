@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import XmlAndJson from '@/utils/JsonAndXml2.js'
+import XmlAndJson from '@/utils/JsonAndXml.js'
 
 export default {
   name: 'XmlJsonTest',

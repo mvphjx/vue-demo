@@ -1,7 +1,5 @@
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue2'
-import commonjs from '@rollup/plugin-commonjs';
-import noderesolve from '@rollup/plugin-node-resolve'
 import {resolve} from 'path'
 
 export default defineConfig({
@@ -15,7 +13,7 @@ export default defineConfig({
         extensions: ['.vue', '.js', '.ts', '.jsx', '.tsx', '.json']
     },
     server: {
-        port: 80,
+        port: 3001,
         open: true
     },
     build: {
