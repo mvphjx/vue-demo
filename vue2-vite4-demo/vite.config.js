@@ -1,5 +1,7 @@
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue2'
+import commonjs from '@rollup/plugin-commonjs';
+import noderesolve from '@rollup/plugin-node-resolve'
 import {resolve} from 'path'
 
 export default defineConfig({
